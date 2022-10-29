@@ -1,0 +1,19 @@
+{
+  "name": "01_basic",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/index.js",
+  "scripts": {
+    "dev": "npx parcel ./src/index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/three": "^0.144.0",
+    "parcel": "^2.7.0"
+  },
+  "dependencies": {
+    "three": "^0.145.0"
+  }
+}
