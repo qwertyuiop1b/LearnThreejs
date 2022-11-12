@@ -26,12 +26,18 @@ renderer.shadowMap.enabled = true
 renderer.shadowMap.type = THREE.PCFSoftShadowMap
 document.body.appendChild(renderer.domElement);
 
+const textLoader = new THREE.TextureLoader()
+const armTexture = textLoader.load("/rocky_trail_4k.gltf/textures/rocky_trail_arm_4k.jpg")
+const diffTexture = textLoader.load("/rocky_trail_4k.gltf/textures/rocky_trail_diff_4k.jpg")
+const norTexture = textLoader.load("/rocky_trail_4k.gltf/textures/rocky_trail_nor_gl_4k.jpg")
+
 const planeGeometry = new THREE.PlaneGeometry(10, 10);
 const planeMaterial = new THREE.MeshStandardMaterial({
   color: 0xdfdfdf,
   side: THREE.DoubleSide,
-  metalness: 0,
-  roughness: 0.5,
+  envMap: armTexture,
+  map: diffTexture,
+  normalMap: norTexture
 });
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.receiveShadow = true;
@@ -88,6 +94,14 @@ gltfLoader.load("/models/Fox/glTF/Fox.gltf", gltf => {
   // 单纯调用play()不行，要每一帧更新才行
   action.play()
 })
+
+
+gltfLoader.load("/rocky_trail_4k.gltf/rocky_trail_4k.gltf", gltf => {
+  console.log(gltf)
+  scene.add(gltf.scene)
+})
+
+
 
 
 
