@@ -38,7 +38,7 @@ const size = {
   height: window.innerHeight,
 };
 const camera = new THREE.OrthographicCamera(
-  - 16,
+  -16,
    16,
    16,
   -16,

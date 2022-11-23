@@ -9,3 +9,8 @@ body,
   width: 100%;
   overflow: hidden;
 }
+.selectBox {
+  border: 1px solid rgb(165, 71, 71);
+  position: fixed;
+  background-color: aqua;
+}
