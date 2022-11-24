@@ -16,7 +16,8 @@ class App extends React.Component {
   selectionCamera: THREE.OrthographicCamera | null;
 
   selectionBox: THREE.Vector4;
-  startPoint: THREE.Vector2;
+  startPoint: THREE.Vector3;
+  endPoint: THREE.Vector3;
   active: boolean;
   controls: OrbitControls | null;
 
@@ -37,7 +38,8 @@ class App extends React.Component {
     this.selectionScene = new THREE.Scene();
     this.renderTarget = null;
     this.selectionCamera = null;
-    this.startPoint = new THREE.Vector2();
+    this.startPoint = new THREE.Vector3();
+    this.endPoint = new THREE.Vector3();
     this.active = false;
     this.selectionTexture = null;
     this.pointsGrop = new THREE.Group();
@@ -66,63 +68,50 @@ class App extends React.Component {
       indexArray.forEach((val, index) => {
         indexArray[index] = index;
       });
-
       this.points.geometry.setAttribute(
         "index",
         new THREE.BufferAttribute(indexArray, 1)
       );
 
-      const materialUniforms = {};
+      const materialUniforms = {
+        startPoint: {
+          value: this.startPoint.unproject(this.camera!),
+        },
+        endPoint: { value: this.endPoint.unproject(this.camera!)},
+      };
+      console.log(this.points.material);
+      const material = this.points.material as THREE.Material
+      material.userData.uniform = materialUniforms;
+
+      material.onBeforeCompile = (shader: THREE.Shader, renderer: THREE.WebGLRenderer) => {
+        console.log(shader, renderer)
+        shader.uniforms["startPoint"] = materialUniforms.startPoint
+        shader.uniforms["endPoint"] = materialUniforms.endPoint
+
+      }
+
       this.scene.add(this.points);
     });
   };
 
   handleMouseDown = (evt: MouseEvent) => {
-    console.log("down...");
-    this.mouseStartPoint.x = this.mouse.x =
-      (evt.clientX / window.innerWidth) * 2 - 1;
-    this.mouseStartPoint.y = this.mouse.y =
-      (-evt.clientY / window.innerHeight) * 2 + 1;
-
+    this.startPoint.x = (evt.clientX / window.innerWidth) * 2 - 1;
+    this.startPoint.y = -((evt.clientY / window.innerHeight) * 2 - 1);
     window.addEventListener("mousemove", this.handleMouseMove);
     window.addEventListener("mouseup", this.handleMouseUp);
   };
 
   handleMouseMove = (evt: MouseEvent) => {
-    console.log("moving...");
-    this.mouse.x = (evt.clientX / window.innerWidth) * 2 - 1;
-    this.mouse.y = (-evt.clientY / window.innerHeight) * 2 + 1;
-
-    const intersects = this.raycaster?.intersectObjects([this.points!]);
-    console.log(intersects);
-    intersects?.forEach((item: any) => {
-      // @ts-ignore
-      (item.object as THREE.Points).geometry.attributes.color.array[
-        item.index * 3
-      ] = 1;
-      // @ts-ignore
-      (item.object as THREE.Points).geometry.attributes.color.array[
-        item.index * 3 + 1
-      ] = 0;
-      // @ts-ignore
-      (item.object as THREE.Points).geometry.attributes.color.array[
-        item.index * 3 + 2
-      ] = 0;
-    });
-    this.points!.geometry.attributes.color.needsUpdate = true;
+    this.endPoint.x = (evt.clientX / window.innerWidth) * 2 - 1;
+    this.endPoint.y = -((evt.clientY / window.innerHeight) * 2 - 1);
   };
 
   handleMouseUp = (evt: MouseEvent) => {
-    this.mouseEndPoint.x = (evt.clientX / window.innerWidth) * 2 - 1;
-    this.mouseEndPoint.y = (-evt.clientY / window.innerHeight) * 2 + 1;
-    const deltaVector = this.mouseEndPoint.sub(this.mouseStartPoint);
-    console.log(deltaVector);
-
+    this.endPoint.x = (evt.clientX / window.innerWidth) * 2 - 1;
+    this.endPoint.y = -((evt.clientY / window.innerHeight) * 2 - 1);
     window.removeEventListener("mousemove", this.handleMouseMove);
     window.removeEventListener("mouseup", this.handleMouseUp);
   };
-
-  init() {}
 
   componentDidMount(): void {
     const cvs = this.cvsRef.current!;
